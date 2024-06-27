@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: ./docker/backend
+    image: laravel-app
+    container_name: laravel-app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+      - ./backend:/var/www/vendor
+    networks:
+      - app-network
+    ports:
+      - "9000:9000"
+
+  frontend:
+    build:
+      context: ./docker/frontend
+    image: svelte-app
+    container_name: svelte-app
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    networks:
+      - app-network
+    ports:
+      - "5000:5000"
+
+  db:
+    image: postgres:13
+    container_name: postgres-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: your_database
+      POSTGRES_USER: your_user
+      POSTGRES_PASSWORD: your_password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    ports:
+      - "5432:5432"
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
