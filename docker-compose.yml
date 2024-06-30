@@ -1,16 +1,16 @@
 version: '3.8'
 
 services:
-  app:
+  backend:
     build:
-      context: ./docker/backend
-    image: laravel-app
-    container_name: laravel-app
+      context: ./backend
+    image: laravel
+    container_name: laravel
     restart: unless-stopped
     working_dir: /var/www
     volumes:
       - ./backend:/var/www
-      - ./backend:/var/www/vendor
+      - ./backend:/var/www/vendor #Laravel specific
     networks:
       - app-network
     ports:
@@ -18,9 +18,9 @@ services:
 
   frontend:
     build:
-      context: ./docker/frontend
-    image: svelte-app
-    container_name: svelte-app
+      context: ./frontend
+    image: svelte
+    container_name: svelte
     restart: unless-stopped
     working_dir: /app
     volumes:
@@ -28,7 +28,7 @@ services:
     networks:
       - app-network
     ports:
-      - "5000:5000"
+      - "5173:5173"
 
   db:
     image: postgres:13
