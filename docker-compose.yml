@@ -1,7 +1,8 @@
 version: '3.8'
 
 services:
-  backend:
+
+  laravel:
     build:
       context: ./backend
     image: laravel
@@ -10,17 +11,17 @@ services:
     working_dir: /var/www
     volumes:
       - ./backend:/var/www
-      - ./backend:/var/www/vendor #Laravel specific
+      - ./backend/vendor:/var/www/vendor #Laravel specific
     networks:
       - app-network
     ports:
       - "9000:9000"
 
-  frontend:
+  sveltekit:
     build:
       context: ./frontend
-    image: svelte
-    container_name: svelte
+    image: sveltekit
+    container_name: sveltekit
     restart: unless-stopped
     working_dir: /app
     volumes:

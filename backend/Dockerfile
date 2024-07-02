@@ -1,40 +1,25 @@
-FROM php:8.1
+FROM php:8.3-fpm-alpine
 
-# Set working directory
+# Install necessary libraries for GD
+RUN apk --update --no-cache add \
+    freetype-dev \
+    libjpeg-turbo-dev \
+    libpng-dev \
+    postgresql-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd \
+    && docker-php-ext-install pdo pdo_pgsql pgsql
+
+# Set the working directory
 WORKDIR /var/www
 
-# Install dependencies
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libpng-dev \
-    libjpeg62-turbo-dev \
-    libfreetype6-dev \
-    locales \
-    zip \
-    jpegoptim optipng pngquant gifsicle \
-    vim \
-    unzip \
-    git \
-    curl
+# Copy application code
+COPY . .
 
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+# Install Composer dependencies
+RUN apk --no-cache add curl && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer && composer install
 
-# Install extensions
-RUN docker-php-ext-install pdo pdo_mysql
-
-# Install composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Copy existing application directory contents
-COPY . /var/www
-
-# Copy existing application directory permissions
-COPY --chown=www-data:www-data . /var/www
-
-# Change current user to www
-USER www-data
-
-# Expose port 9000 and start php-fpm server
+RUN composer install
+# Expose port 9000 and start PHP-FPM
 EXPOSE 9000
-CMD ["php-fpm"]
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=9000"]
