@@ -19,8 +19,8 @@ services:
       dockerfile: ./backend/Dockerfile.dev
     container_name: laravel
     restart: unless-stopped
-    # ports:
-    #   - "9000:9000"
+    ports:
+      - "9000:9000"
     volumes:
       - ./backend:/var/www
     networks:
